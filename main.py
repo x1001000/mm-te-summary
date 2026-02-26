@@ -1,5 +1,6 @@
 import argparse
 import pathlib
+import sys
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
@@ -119,8 +120,12 @@ def main():
     args = parser.parse_args()
 
     tiles = fetch_tiles()
+    if not tiles:
+        raise SystemExit("Error: no tiles scraped (site may be blocking this IP)")
 
-    if args.rss:
+    if args.rss == "-":
+        sys.stdout.write(generate_rss(tiles))
+    elif args.rss:
         rss_path = pathlib.Path(args.rss)
         rss_path.write_text(generate_rss(tiles), encoding="utf-8")
         index_path = rss_path.parent / "index.html"

@@ -13,21 +13,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      - name: Install hf CLI
+        run: curl -LsSf https://hf.co/cli/install.sh | bash
 
-      - name: Set up Python
-        run: uv python install
-
-      - name: Generate feed
+      - name: Scrape via HF Jobs
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           mkdir -p _site
-          uv run main.py --rss _site/feed.xml
+          hf jobs uv run main.py -- --rss - > _site/feed.xml
+          cat _site/feed.xml
+
+      - name: Generate index.html
+        run: |
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head><meta charset="utf-8"><title>Trading Economics Summary</title></head>
+          <body>
+          <h1>Trading Economics Summary</h1>
+          <p>Subscribe to the <a href="feed.xml">RSS feed</a> for hourly updates.</p>
+          </body>
+          </html>
+          EOF
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

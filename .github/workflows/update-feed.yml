@@ -26,7 +26,9 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           mkdir -p _site
-          hf jobs uv run main.py -- --rss - > _site/feed.xml
+          hf jobs uv run main.py -- --rss - > _site/raw_output.txt
+          sed -n '/<?xml/,$p' _site/raw_output.txt > _site/feed.xml
+          rm _site/raw_output.txt
           cat _site/feed.xml
 
       - name: Generate index.html

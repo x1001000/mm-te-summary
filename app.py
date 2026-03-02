@@ -1,7 +1,33 @@
+import urllib.request
+import xml.etree.ElementTree as ET
+from datetime import datetime, timezone, timedelta
+from email.utils import parsedate_to_datetime
+
 import streamlit as st
 from google import genai
 
-from main import fetch_tiles
+FEED_URL = "https://x1001000.github.io/mm-te-summary/feed.xml"
+
+
+def fetch_tiles_from_feed() -> tuple[list[dict[str, str]], str]:
+    req = urllib.request.Request(FEED_URL, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req) as resp:
+        xml_data = resp.read().decode()
+    root = ET.fromstring(xml_data)
+    raw = root.findtext(".//lastBuildDate", "")
+    if raw:
+        taipei = timezone(timedelta(hours=8))
+        dt = parsedate_to_datetime(raw).astimezone(taipei)
+        last_build = f"台北時間 {dt:%Y-%m-%d %H:%M:%S} 更新"
+    else:
+        last_build = ""
+    tiles = []
+    for item in root.findall(".//item"):
+        title = item.findtext("title", "")
+        summary = item.findtext("description", "")
+        if title:
+            tiles.append({"title": title, "summary": summary})
+    return tiles, last_build
 
 DEFAULT_MODEL = "gemini-3-flash-preview"
 
@@ -20,7 +46,7 @@ def calculate_cost(usage_metadata, model=DEFAULT_MODEL):
     ) / 1e6
 
 st.set_page_config(page_title="TE Tile Analyzer", layout="wide")
-st.title("TE 圖表摘要二創")
+st.title("TE 圖表摘要，二創提示詞測試")
 
 # --- System prompt ---
 system_prompt = st.text_area(
@@ -61,9 +87,9 @@ Output only the rewritten version.'''.replace("\n\n", "\n"),
 
 # --- Fetch tiles on first load ---
 if "tiles" not in st.session_state:
-    with st.spinner("讀取 TE 首頁目前六個方塊文字..."):
+    with st.spinner("讀取 TE 首頁最近一小時內更新的六個方塊文字..."):
         try:
-            st.session_state.tiles = fetch_tiles()
+            st.session_state.tiles, st.session_state.last_build = fetch_tiles_from_feed()
         except Exception as e:
             st.error(f"Failed to fetch tiles: {e}")
             st.stop()
@@ -75,7 +101,7 @@ if not tiles:
 
 # --- Tile selector ---
 tile_titles = [t["title"] for t in tiles]
-choice = st.radio("選取 USER PROMPT", tile_titles)
+choice = st.radio(f"選取 USER PROMPT（[TE 首頁 ](https://tradingeconomics.com)的六個方塊為例，{st.session_state.last_build}）", tile_titles)
 selected = tiles[tile_titles.index(choice)]
 
 # st.subheader("Preview")

@@ -86,7 +86,7 @@ st.write(selected["summary"])
 if st.button("打 Gemini API", type="primary"):
     client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
-    with st.spinner("Calling Gemini..."):
+    with st.spinner("等待 API 回應..."):
         response = client.models.generate_content(
             model=DEFAULT_MODEL,
             config=genai.types.GenerateContentConfig(

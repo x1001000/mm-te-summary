@@ -46,7 +46,7 @@ def calculate_cost(usage_metadata, model=DEFAULT_MODEL):
     ) / 1e6
 
 st.set_page_config(page_title="TE Tile Analyzer", layout="wide")
-st.title("TE 圖表摘要，二創提示詞測試")
+st.title("TE 圖表摘要，二創提示詞測試工具")
 
 # --- System prompt ---
 system_prompt = st.text_area(

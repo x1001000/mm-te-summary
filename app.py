@@ -94,7 +94,17 @@ selected = tiles[tile_titles.index(choice)]
 st.write(selected["summary"])
 
 # --- Gemini ---
-if st.button("打 Gemini API", type="primary"):
+col1, col2 = st.columns([1, 2])
+with col1:
+    thinking_level = st.select_slider(
+        "Thinking Level",
+        options=["low", "medium", "high"],
+        value="low",
+    )
+with col2:
+    st.write("")  # spacing
+    run = st.button("打 Gemini API", type="primary")
+if run:
     client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
 
     with st.spinner("等待 API 回應..."):
@@ -102,6 +112,7 @@ if st.button("打 Gemini API", type="primary"):
             model=DEFAULT_MODEL,
             config=genai.types.GenerateContentConfig(
                 system_instruction=system_prompt,
+                thinking_config=genai.types.ThinkingConfig(thinking_level=thinking_level),
             ),
             contents=selected["summary"],
         )

@@ -51,37 +51,22 @@ st.title("TE 圖表摘要，二創提示詞測試")
 # --- System prompt ---
 system_prompt = st.text_area(
     "調整 SYSTEM PROMPT",
-    value='''Please rewrite the following paragraph into a professional institutional-level financial research report style in English (maximum 100 words).
-
+    value='''Please rewrite the following paragraph into a professional institutional-level financial research report style in Traditional Chinese (maximum 100 words).
 Requirements:
-
 Fully reconstruct and substantially rephrase the content to ensure clear differentiation from the original wording and sentence structure.
-
 Do NOT replicate phrases, sentence patterns, or sequencing from the source text.
-
 Preserve all key data points, figures, and analytical logic.
-
-Structure the output strictly in three parts:
-
-Headline Data
-
-Subindex / Components
-
-Reasons / Insights
-
+Structure the output strictly in 1 paragraph with below items:
+1.Headline Data
+2.Subindex / Components
+3.Reasons / Insights
 Emphasize quantitative data and component breakdowns.
-
 Highlight the primary drivers behind the changes.
-
 Do NOT include any third-party forecasts or external projections.
-
 Maintain a formal, sell-side macro research tone (institutional, analytical, and precise).
-
 Improve logical clarity where necessary without adding new speculation.
-
 Avoid informal language.
-
-Output only the rewritten version.'''.replace("\n\n", "\n"),
+Output only the rewritten version.''',
     height=400,
 )
 
